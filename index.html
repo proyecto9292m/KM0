@@ -85,11 +85,9 @@ body{ font-family:var(--fuente); color:var(--tinta); background:var(--verde-brum
 .cookie-modal .cookie-enlaces{ margin-top:18px; font-size:0.82rem; color:var(--tinta-suave); }
 .cookie-modal .cookie-enlaces a{ color:var(--verde-jade); font-weight:600; }
 .cookie-modal .cookie-enlaces a:hover{ text-decoration:underline; }
-body.cookie-locked{ overflow:hidden; }
 
-.contenido-principal{ display:none; }
-.contenido-principal.visible{ display:block; animation:aparecer 0.7s ease; }
-@keyframes aparecer{ from{ opacity:0; transform:translateY(24px); } to{ opacity:1; transform:translateY(0); } }
+/* El contenido principal SIEMPRE visible (corrección técnica para el crawler) */
+.contenido-principal{ display:block; }
 
 /* ============ HEADER ============ */
 .cabecera{ position:sticky; top:0; z-index:1000; padding:14px 0 0; }
@@ -194,8 +192,9 @@ p{ margin:0 0 1.1rem; color:var(--tinta-suave); }
 
 <body>
 
-<div id="cookie-overlay" class="cookie-overlay visible"></div>
-<div id="aviso-cookies" class="cookie-banner visible" role="dialog" aria-modal="true" aria-labelledby="cookie-titulo">
+<!-- Overlay + banner de cookies (idéntico al original) -->
+<div id="cookie-overlay" class="cookie-overlay"></div>
+<div id="aviso-cookies" class="cookie-banner" role="dialog" aria-modal="true" aria-labelledby="cookie-titulo">
   <div class="cookie-modal">
     <h2 id="cookie-titulo">Aviso de cookies</h2>
     <p>Utilizamos cookies para mejorar tu experiencia y analizar el tráfico de forma anónima.<br><br>Al aceptar, nos permites ofrecerte un contenido más relevante. Puedes rechazar las cookies no esenciales en cualquier momento.</p>
@@ -210,6 +209,7 @@ p{ margin:0 0 1.1rem; color:var(--tinta-suave); }
   </div>
 </div>
 
+<!-- CONTENIDO PRINCIPAL: siempre visible en el HTML -->
 <div class="contenido-principal" id="contenidoPrincipal">
 
   <header class="cabecera">
@@ -350,7 +350,7 @@ p{ margin:0 0 1.1rem; color:var(--tinta-suave); }
 
     <section class="seccion" id="transporte">
       <div class="contenedor">
-            <div class="seccion-encabezado">
+        <div class="seccion-encabezado">
           <span class="etiqueta-seccion">Sección 5 · Transporte público</span>
           <h2>¿Cómo funciona el transporte público en Colombia?</h2>
           <p>Un panorama general antes de entrar en cada sistema y ciudad.</p>
@@ -546,16 +546,16 @@ p{ margin:0 0 1.1rem; color:var(--tinta-suave); }
   }
 
   // Si el usuario ya decidió antes, no mostramos el banner
-  var decisionPrevia = localStorage.getItem('km0_cookies_decision');
+  var decisionPrevia = null;
+  try { decisionPrevia = localStorage.getItem('km0_cookies_decision'); } catch(e){}
+
   if(decisionPrevia === 'aceptado' || decisionPrevia === 'rechazado'){
     overlay.classList.remove('visible');
     banner.classList.remove('visible');
-    document.body.classList.remove('cookie-locked');
     contenidoPrincipal.classList.add('visible');
   } else {
     overlay.classList.add('visible');
     banner.classList.add('visible');
-    document.body.classList.add('cookie-locked');
   }
 
   function aplicarConsentimiento(aceptado){
@@ -570,11 +570,10 @@ p{ margin:0 0 1.1rem; color:var(--tinta-suave); }
   }
 
   function cerrarBanner(aceptado){
-    localStorage.setItem('km0_cookies_decision', aceptado ? 'aceptado' : 'rechazado');
+    try { localStorage.setItem('km0_cookies_decision', aceptado ? 'aceptado' : 'rechazado'); } catch(e){}
     aplicarConsentimiento(aceptado);
     overlay.classList.remove('visible');
     banner.classList.remove('visible');
-    document.body.classList.remove('cookie-locked');
     contenidoPrincipal.classList.add('visible');
   }
 
